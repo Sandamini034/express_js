@@ -1,41 +1,80 @@
 import express from "express";
-import cors from "cors";
-import fs from "fs";
+import mysql from "mysql2";
+import bcrypt from "bcrypt";
 
-const Data = JSON.parse(
-  fs.readFileSync(new URL("../authentication.json", import.meta.url))
-);
-const users = Data.users;
-
-const app = express();
-app.use(express.json());
-app.use(
-  cors({
-    origin: "http://127.0.0.1:5500",
-  })
-);
-
-app.get("/login", (req, res) => {
-  res.json({ message: "Hello, World!" });
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  port: "3307",
+  password: "11111010010",
+  database: "login",
 });
 
-app.post("/login", (req, res) => {
-  const { username, password } = req.body;
+const app = express();
+app.use(express.static("../client"));
+app.use(express.json());
 
-  if (!username || !password) {
-    return res
-      .status(400)
-      .json({ error: "Username and password are required" });
+app.post("/api/signup", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res
+        .status(400)
+        .json({ error: "Username and password are required" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+
+    db.query(sql, [username, hashedPassword], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Failed to create user" });
+      }
+      res.json({ message: "User created successfully" });
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
+});
 
-  const user = users.find((u) => u.username === username);
+app.post("/api/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
 
-  if (!user || user.password !== password) {
-    return res.status(401).json({ error: "Invalid username or password" });
+    if (!username || !password) {
+      return res
+        .status(400)
+        .json({ error: "Username and password are required" });
+    }
+
+    const sql = "SELECT * FROM users WHERE username = ?";
+
+    db.query(sql, [username], async (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Failed to retrieve user" });
+      }
+
+      if (results.length === 0) {
+        return res.status(401).json({ error: "Invalid username or password" });
+      }
+
+      const user = results[0];
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+
+      if (!isPasswordValid) {
+        return res.status(401).json({ error: "Invalid username or password" });
+      }
+
+      res.json({ message: "Login successful" });
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
-
-  console.log(`Username: ${username}, Password: ${password}`);
-  res.json({ message: "Login successful" });
 });
 
 app.listen(3000, () => {
