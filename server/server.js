@@ -1,13 +1,14 @@
+import "dotenv/config";
 import express from "express";
 import mysql from "mysql2";
 import bcrypt from "bcrypt";
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  port: "3307",
-  password: "",
-  database: "login",
+  host: process.env.host,
+  user: process.env.user,
+  port: process.env.port,
+  password: process.env.password,
+  database: process.env.database,
 });
 
 const app = express();
