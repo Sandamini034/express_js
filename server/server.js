@@ -2,13 +2,14 @@ import "dotenv/config";
 import express from "express";
 import mysql from "mysql2";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const db = mysql.createConnection({
-  host: process.env.host,
-  user: process.env.user,
-  port: process.env.port,
-  password: process.env.password,
-  database: process.env.database,
+  host: process.env.HOST,
+  user: process.env.USER,
+  port: process.env.PORT,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE,
 });
 
 const app = express();
@@ -70,7 +71,13 @@ app.post("/api/login", async (req, res) => {
         return res.status(401).json({ error: "Invalid username or password" });
       }
 
-      res.json({ message: "Login successful" });
+      const token = jwt.sign(
+        { username: user.username, password: user.password },
+        process.env.JWT_SECRET,
+        { expiresIn: "7d" }
+      );
+
+      res.json({ message: "Login successful", token });
     });
   } catch (err) {
     console.error(err);
