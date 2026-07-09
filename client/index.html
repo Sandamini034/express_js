@@ -4,45 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: #f0f0f0;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 20px;
-      background-color: white;
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    input {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    button {
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      background-color: #007BFF;
-      color: white;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-  </style>
+  <title>login</title>
+  <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
@@ -53,44 +16,7 @@
     <a href="signup.html">Sign up</a>
     <p></p>
   </form>
-
-  <script>
-    const username = document.querySelector('input[name="username"]');
-    const password = document.querySelector('input[name="password"]');
-    const form = document.querySelector('form');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      try {
-        const response = await fetch('/api/user/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            username: username.value,
-            password: password.value
-          })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          // backend sent { error: "..." }
-          error.textContent = data.error || 'Something went wrong';
-          error.style.color = 'red';
-        } else {
-          // backend sent { message: "..." }
-          error.textContent = data.message;
-          error.style.color = 'green';
-        }
-      } catch (err) {
-        error.textContent = 'Network error, please try again';
-        error.style.color = 'red';
-        console.error(err);
-      }
-    });
-  </script>
+  <script src="login.js"></script>
 </body>
 
 </html>
