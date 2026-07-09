@@ -8,5 +8,8 @@
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.22.5",
     "nodemon": "^3.1.14"
+  },
+  "scripts": {
+    "dev": "cd server && node server.js"
   }
 }

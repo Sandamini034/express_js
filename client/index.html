@@ -51,6 +51,7 @@
     <input type="password" name="password" placeholder="Password">
     <button type="submit">Login</button>
     <a href="signup.html">Sign up</a>
+    <p></p>
   </form>
 
   <script>
@@ -60,16 +61,34 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          username: username.value,
-          password: password.value
-        })
-      });
+      try {
+        const response = await fetch('/api/user/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: username.value,
+            password: password.value
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          // backend sent { error: "..." }
+          error.textContent = data.error || 'Something went wrong';
+          error.style.color = 'red';
+        } else {
+          // backend sent { message: "..." }
+          error.textContent = data.message;
+          error.style.color = 'green';
+        }
+      } catch (err) {
+        error.textContent = 'Network error, please try again';
+        error.style.color = 'red';
+        console.error(err);
+      }
     });
   </script>
 </body>
